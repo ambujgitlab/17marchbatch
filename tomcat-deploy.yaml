@@ -14,10 +14,10 @@ spec:
        env: stage
     spec:
      imagePullSecrets:
-       - name: passwd-for-docker-hub-new
+       - name: passwd-for-docker-hub
      containers:
        - name: tomcat
-         image: tgindia2218/tg17march:BUILD_NUMBER
+         image: tgindia2218/tg17march:JOB_NAME-BUILD_NUMBER
          ports:
           - containerPort: 8080
 
