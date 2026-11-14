@@ -17,7 +17,7 @@ spec:
        - name: passwd-for-docker-hub
      containers:
        - name: tomcat
-         image: tgindia2218/tg17march:JOB_NAME-BUILD_NUMBER
+         image: ambuj2k19/9nov:JOB_NAME-BUILD_NUMBER
          ports:
           - containerPort: 8080
 
