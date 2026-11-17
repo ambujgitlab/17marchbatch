@@ -1,11 +1,12 @@
 pipeline {
-    agent any
+    agent { label 'master.tg.com' }
 
     environment {
         DOCKER_REPO  = 'ambuj2k19/9nov'
         IMAGE_TAG    = "${JOB_NAME.replaceAll('[^a-zA-Z0-9_.-]', '-')}-${BUILD_NUMBER}"
         K8S_NS       = 'mytg'
-        DOCKER_CREDS = credentials('dockerhub-creds')
+        DOCKER_USER  = 'ambuj2k19'
+        DOCKER_TOKEN = 'PASTE_YOUR_NEW_TOKEN_HERE'
     }
 
     parameters {
@@ -14,7 +15,7 @@ pipeline {
     }
 
     triggers {
-        pollSCM('* * * * *')
+        pollSCM('H/5 * * * *')
     }
 
     options {
@@ -35,6 +36,8 @@ pipeline {
                     pwd
                     hostname
                     ls -ltr
+                    docker ps
+                    kubectl get nodes
                 '''
             }
         }
@@ -48,7 +51,7 @@ pipeline {
         stage('Docker Push') {
             steps {
                 sh '''
-                    echo "$DOCKER_CREDS_PSW" | docker login -u "$DOCKER_CREDS_USR" --password-stdin
+                    echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USER" --password-stdin
                     docker push $DOCKER_REPO:$IMAGE_TAG
                     docker logout
                 '''
@@ -59,6 +62,9 @@ pipeline {
             steps {
                 sh '''
                     kubectl get ns $K8S_NS || kubectl create ns $K8S_NS
+                    kubectl create secret docker-registry passwd-for-docker-hub \
+                      --docker-username=$DOCKER_USER --docker-password=$DOCKER_TOKEN \
+                      -n $K8S_NS --dry-run=client -o yaml | kubectl apply -f -
                     sed -i "s|JOB_NAME-BUILD_NUMBER|$IMAGE_TAG|g" tomcat-deploy.yaml
                     kubectl apply -f service.yaml
                     kubectl apply -f tomcat-deploy.yaml
@@ -75,15 +81,16 @@ pipeline {
                 '''
             }
         }
+
+        stage('Cleanup') {
+            steps {
+                sh 'docker image prune -f || true'
+            }
+        }
     }
 
     post {
         success { echo "Build ${BUILD_NUMBER} deployed successfully" }
         failure { echo "Build ${BUILD_NUMBER} FAILED" }
-        always {
-            node('') {
-                sh 'docker image prune -f || true'
-            }
-        }
     }
 }
