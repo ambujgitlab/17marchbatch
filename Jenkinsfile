@@ -3,10 +3,11 @@ pipeline {
 
     environment {
         DOCKER_REPO  = 'ambuj2k19/9nov'
-        IMAGE_TAG    = "${JOB_NAME.replaceAll('[^a-zA-Z0-9_.-]', '-')}-${BUILD_NUMBER}"
+        JOB_TAG      = "${JOB_NAME.replaceAll('[^a-zA-Z0-9_.-]', '-')}"
+        IMAGE_TAG    = "${JOB_TAG}-${BUILD_NUMBER}"
         K8S_NS       = 'mytg'
         DOCKER_USER  = 'ambuj2k19'
-        DOCKER_TOKEN = 'dckr_pat_OVRwqkDTK9J68andjc6aMeSACdU'
+        DOCKER_TOKEN = 'PASTE_YOUR_NEW_TOKEN_HERE'
     }
 
     parameters {
@@ -15,7 +16,7 @@ pipeline {
     }
 
     triggers {
-        pollSCM('* * * * *')
+        pollSCM('H/5 * * * *')
     }
 
     options {
@@ -65,7 +66,11 @@ pipeline {
                     kubectl create secret docker-registry passwd-for-docker-hub \
                       --docker-username=$DOCKER_USER --docker-password=$DOCKER_TOKEN \
                       -n $K8S_NS --dry-run=client -o yaml | kubectl apply -f -
-                    sed -i "s|JOB_NAME-BUILD_NUMBER|$IMAGE_TAG|g" tomcat-deploy.yaml
+
+                    sed -i "s|JOB_NAME|${JOB_TAG}|g" tomcat-deploy.yaml
+                    sed -i "s|BUILD_NUMBER|${BUILD_NUMBER}|g" tomcat-deploy.yaml
+
+                    grep image: tomcat-deploy.yaml
                     kubectl apply -f service.yaml
                     kubectl apply -f tomcat-deploy.yaml
                     kubectl rollout status deployment/myapp1 -n $K8S_NS --timeout=120s
