@@ -6,7 +6,7 @@ pipeline {
         IMAGE_TAG    = "${JOB_NAME.replaceAll('[^a-zA-Z0-9_.-]', '-')}-${BUILD_NUMBER}"
         K8S_NS       = 'mytg'
         DOCKER_USER  = 'ambuj2k19'
-        DOCKER_TOKEN = 'PASTE_YOUR_NEW_TOKEN_HERE'
+        DOCKER_TOKEN = 'dckr_pat_OVRwqkDTK9J68andjc6aMeSACdU'
     }
 
     parameters {
