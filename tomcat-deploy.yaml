@@ -7,17 +7,17 @@ spec:
   replicas: 5
   selector:
     matchLabels:
-     env: stage
+      env: stage
   template:
     metadata:
-     labels:
-       env: stage
+      labels:
+        env: stage
     spec:
-     imagePullSecrets:
-       - name: passwd-for-docker-hub
-     containers:
-       - name: tomcat
-         image: ambuj2k19/9nov:JOB_NAME-BUILD_NUMBER
-         ports:
-          - containerPort: 8080
+      imagePullSecrets:
+        - name: passwd-for-docker-hub
+      containers:
+        - name: tomcat
+          image: ambuj2k19/9nov:IMAGE_TAG
+          ports:
+            - containerPort: 8080
 
