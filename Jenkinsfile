@@ -71,7 +71,7 @@ pipeline {
                     sed -i "s|BUILD_NUMBER|${BUILD_NUMBER}|g" tomcat-deploy.yaml
 
                     grep image: tomcat-deploy.yaml
-                    kubectl apply -f service.yaml
+                    kubectl apply -f mynps.yaml
                     kubectl apply -f tomcat-deploy.yaml
                     kubectl rollout status deployment/myapp1 -n $K8S_NS --timeout=120s
                 '''
