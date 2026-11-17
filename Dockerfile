@@ -1,16 +1,16 @@
 FROM rockylinux:9.3.20231119
 
-MAINTAINER "ekamjeetsingh@gmail.com"
+LABEL maintainer="ekamjeetsingh@gmail.com"
 
-RUN  dnf install -y vim java-17-openjdk java-17-openjdk-devel 
+RUN dnf install -y vim java-17-openjdk java-17-openjdk-devel \
+    && dnf clean all
 
-COPY Dockerfile  /root/
+COPY Dockerfile /root/
 
-ADD apache-tomcat-8.5.89.tar.gz  /opt
+ADD apache-tomcat-8.5.89.tar.gz /opt
 
 WORKDIR /opt/apache-tomcat-8.5.89/bin/
 
-EXPOSE 8080 8085 8081 80
+EXPOSE 8080
 
-CMD ["/opt/apache-tomcat-8.5.89/bin/catalina.sh","run"]
-
+CMD ["/opt/apache-tomcat-8.5.89/bin/catalina.sh", "run"]
